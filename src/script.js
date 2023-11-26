@@ -70,7 +70,7 @@ document.addEventListener("alpine:init", () => {
       },
       {
         id: 10,
-        name: "saya sarden 155g",
+        name: "maya sarden 155g",
         img: "10.png",
         unit: "/kaleng",
         price: 11500,
@@ -83,9 +83,13 @@ document.addEventListener("alpine:init", () => {
         price: 21800,
       },
     ],
+    barang: [],
+    total: 0,
+    quantity: 0,
 
-    searchItem() {
+    searchItem: function () {
       const self = this;
+
       keyword.addEventListener("keyup", function () {
         if (!self.items) {
           console.error("Error: 'items' is not defined.");
@@ -94,48 +98,84 @@ document.addEventListener("alpine:init", () => {
 
         const inputValue = keyword.value.toLowerCase();
 
-        const filteredItems = self.items.filter((item) =>
-          item.name.toLowerCase().includes(inputValue)
-        );
+        const filteredItems = self.items.filter((item) => {
+          return item.name.toLowerCase().includes(inputValue);
+        });
 
+        // Clear existing filtered items
+        self.barang = [];
+
+        // Check if there are any filtered items
         if (filteredItems.length > 0) {
-          const newHTML = filteredItems
+          // Add filtered items to the filteredItems array
+          filteredItems.forEach((item) => {
+            self.barang.push(item);
+            console.log(self.barang);
+          });
+          const newHTML = self.barang
             .map(
-              (item) => `
-                <div class="barang1">
-                  <div class="bg-white border rounded overflow-hidden">
-                    <div class="">
-                      <center><img src="./src/img/${
-                        item.img
-                      }" class="w-[90%] pt-2" alt="${item.name}"></center>
-                    </div>
-                    <div class="pt-2 pb-1 px-4">
-                      <a href="#">
-                        <h4 class="uppercase inline-block font-medium text-md mb-2 text-gray-800">${
-                          item.name
-                        }</h4>
-                      </a>
-                      <div class="flex items-baseline mb-1 space-x-2">
-                        <p class="text-md font-semibold">${rupiah(
-                          item.price
-                        )}</p>
-                        <p class="text-sm text-gray-400">${item.unit}</p>
-                      </div>
-                    </div>
-                    <button type="submit" @click.prevent="$store.cart.add(item)"
-                      class="block w-full text-sm py-1 text-center text-white bg-emerald-600 border-emerald-600 rounded-b hover:bg-transparent hover:text-emerald-600 hover:border hover:border-emerald-600 transition">Tambah</button>
+              (filteredItems, index) => `
+            <div class="barang1" x-data="{ index: ${index} }">
+              <div class="bg-white border rounded overflow-hidden">
+                <div class="">
+                  <center><img src="./src/img/${
+                    filteredItems.img
+                  }" class="w-[90%] pt-2" alt="${filteredItems.name}"></center>
+                </div>
+                <div class="pt-2 pb-1 px-4">
+                  <a href="#">
+                    <h4 class="uppercase inline-block font-medium text-md mb-2 text-gray-800">${
+                      filteredItems.name
+                    }</h4>
+                  </a>
+                  <div class="flex items-baseline mb-1 space-x-2">
+                    <p class="text-md font-semibold">${rupiah(
+                      filteredItems.price
+                    )}</p>
+                    <p class="text-sm text-gray-400">${filteredItems.unit}</p>
                   </div>
                 </div>
-              `
+                <button type="submit" @click.prevent="$data.addToCart(barang)"
+                  class="block w-full text-sm py-1 text-center text-white bg-emerald-600 border-emerald-600 rounded-b hover:bg-transparent hover:text-emerald-600 hover:border hover:border-emerald-600 transition">Tambah</button>
+              </div>
+            </div>
+          `
             )
             .join("");
           container.innerHTML = newHTML;
         } else {
           console.log("No matching items found.");
         }
-
         console.log("Filtered Items:", filteredItems);
       });
+    },
+    addToCart(newItem) {
+      console.log("Adding to cart:", newItem);
+      const cartItem = this.$store.cart.items.find(
+        (barang) => barang.id === newItem.id
+      );
+
+      if (!cartItem) {
+        this.$store.cart.items.push({
+          ...newItem,
+          quantity: 1,
+          total: newItem.price,
+        });
+        this.$store.cart.quantity++;
+        this.$store.cart.total += newItem.price;
+      } else {
+        this.$store.cart.items = this.$store.cart.items.map((barang) => {
+          if (barang.id !== newItem.id) {
+            return barang;
+          } else {
+            barang.quantity++;
+            barang.total = barang.price * barang.quantity;
+            this.$store.cart.quantity++;
+            this.$store.cart.total += barang.price;
+            return barang;
+          }
+        });
+      }
     },
   }));
 
@@ -144,6 +184,7 @@ document.addEventListener("alpine:init", () => {
     total: 0,
     quantity: 0,
     add(newItem) {
+      console.log("Adding to cart:", newItem);
       const cartItem = this.items.find((item) => item.id === newItem.id);
 
       if (!cartItem) {

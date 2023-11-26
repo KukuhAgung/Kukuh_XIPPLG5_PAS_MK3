@@ -47,7 +47,7 @@
         </div>
 
         <div id="shop-cart"
-            class="md:hidden shopping-cart absolute top-[100%] right-[-130%] w-[28rem] h-[100vh] text-black bg-white transition-all overflow-y-auto max-h-screen">
+            class="md:hidden shopping-cart absolute top-[100%] right-[-130%] w-[28rem] h-[100vh] text-black bg-white overflow-y-auto max-h-screen transition-all">
             <!-- Konten Keranjang Belanja di sini -->
             <template x-for="(item, index) in $store.cart.items" x-keys="index">
                 <div class="cart-item relative flex items-center gap-6 py-4 px-2 border-b-[0.3px] border-gray-400">
@@ -113,7 +113,7 @@
                 <div id="search"
                     class="search flex gap-1 px-2 py-[5px] bg-emerald-400 w-[100px] xl:w-[150px] rounded-r-sm xl:py-3">
                     <i class="text-white font-bold w-3 xl:w-5" data-feather="search"></i>
-                    <button class="text-white font-medium text-[10px] xl:text-sm" type="button" id="set">Cari
+                    <button class="text-white font-medium text-[10px] xl:text-sm" type="button" id="set"  x-on:click="searchItem()">Cari
                         Barang</button>
                 </div>
             </div>
